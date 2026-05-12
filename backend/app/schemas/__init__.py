@@ -2,10 +2,6 @@ from app.schemas.auth import LoginRequest, RefreshRequest, RegisterRequest, Toke
 from app.schemas.user import UserRead
 from app.schemas.trip import TripCreate, TripRead, TripUpdate
 from app.schemas.itinerary import ItineraryRead
-from app.schemas.flight import FlightRead
-from app.schemas.hotel import HotelRead
-from app.schemas.activity import ActivityRead
-from app.schemas.budget import BudgetRead
 from app.schemas.chat import ChatRequest, ChatResponse, ChatHistoryRead
 from app.schemas.destination import DestinationSearchRequest, DestinationRead
 from app.schemas.ai import ItineraryGenerationRequest, ItineraryGenerationResponse
@@ -23,10 +19,6 @@ __all__ = [
     "TripRead",
     "TripUpdate",
     "ItineraryRead",
-    "FlightRead",
-    "HotelRead",
-    "ActivityRead",
-    "BudgetRead",
     "ChatRequest",
     "ChatResponse",
     "ChatHistoryRead",
