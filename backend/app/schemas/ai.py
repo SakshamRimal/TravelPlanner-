@@ -2,6 +2,7 @@ from pydantic import BaseModel
 
 
 class ItineraryGenerationRequest(BaseModel):
+    origin: str
     destination: str
     budget: float | None = None
     travelers: int = 1
