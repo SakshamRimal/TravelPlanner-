@@ -1,17 +1,19 @@
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
+from collections.abc import AsyncGenerator
+
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.core.config import get_settings
 
 settings = get_settings()
 
+if not settings.database_url:
+    raise ValueError("DATABASE_URL is required. Please configure PostgreSQL connection.")
+
 engine = create_async_engine(settings.database_url, echo=False, future=True)
 
-AsyncSessionLocal = sessionmaker(
-    bind=engine, class_=AsyncSession, expire_on_commit=False
-)
+AsyncSessionLocal = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
 
 
-async def get_session() -> AsyncSession:
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as session:
         yield session
