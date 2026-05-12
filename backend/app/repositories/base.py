@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, Generic, TypeVar
 
 from sqlmodel import SQLModel
-from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 
 ModelType = TypeVar("ModelType", bound=SQLModel)
 
