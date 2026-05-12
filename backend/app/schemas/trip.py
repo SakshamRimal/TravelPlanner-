@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 
 class TripCreate(BaseModel):
+    origin: str
     destination: str
     budget: float | None = None
     travelers: int = 1
@@ -16,6 +17,7 @@ class TripCreate(BaseModel):
 
 
 class TripUpdate(BaseModel):
+    origin: str | None = None
     destination: str | None = None
     budget: float | None = None
     travelers: int | None = None
@@ -29,6 +31,7 @@ class TripUpdate(BaseModel):
 
 class TripRead(BaseModel):
     id: UUID
+    origin: str
     destination: str
     budget: float | None
     travelers: int
