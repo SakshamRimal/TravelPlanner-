@@ -21,16 +21,19 @@ class Settings(BaseSettings):
         env_file=str(_get_env_file_path()),
         env_file_encoding="utf-8",
         extra="ignore",
+        case_sensitive=True,
     )
 
+    # Database - no defaults, must be set in .env
     database_url: str | None = None
-    postgres_db: str | None = "travelplanner"
-    postgres_user: str | None = "travelplanner"
-    postgres_password: str | None = "travelplanner"
+    postgres_db: str | None = None
+    postgres_user: str | None = None
+    postgres_password: str | None = None
     postgres_host: str = "localhost"
     postgres_port: int = 5432
 
-    jwt_secret: str = "dev-secret-key"
+    # Auth - no defaults, must be set in .env
+    jwt_secret: str | None = None
     jwt_algorithm: str = "HS256"
     access_token_expires_minutes: int = 30
     refresh_token_expires_days: int = 7

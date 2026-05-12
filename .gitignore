@@ -1,11 +1,11 @@
-.env 
-myenv
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[codz]
-*$py.class
-
+# Environment variables (contains secrets - DO NOT COMMIT)
 .env
+.env.local
+.env.*.local
+.envrc
+.env.production
+.env.development
+myenv
 
 # C extensions
 *.so
@@ -152,7 +152,6 @@ activemq-data/
 *.sage.py
 
 # Environments
-.env
 .envrc
 .venv
 env/
