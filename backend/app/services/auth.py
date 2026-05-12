@@ -1,6 +1,6 @@
 from fastapi import Depends, Header, HTTPException, status
 from jose import JWTError, jwt
-from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
 from app.core.security import (
