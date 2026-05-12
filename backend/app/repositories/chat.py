@@ -1,5 +1,5 @@
 from sqlmodel import select
-from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.chat import ChatHistory
 from app.repositories.base import BaseRepository
@@ -10,7 +10,7 @@ class ChatRepository(BaseRepository[ChatHistory]):
         super().__init__(session)
 
     async def list_by_user(self, user_id: str):
-        result = await self.session.exec(
+        result = await self.session.execute(
             select(ChatHistory).where(ChatHistory.user_id == user_id)
         )
-        return result.all()
+        return result.scalars().all()

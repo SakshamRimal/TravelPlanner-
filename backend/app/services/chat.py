@@ -1,12 +1,50 @@
-from datetime import datetime
+from datetime import datetime, timezone
+from typing import Any
 
+from langchain.prompts import PromptTemplate
+from langchain_google_genai import ChatGoogleGenerativeAI
+from google.api_core.exceptions import ResourceExhausted
+
+from app.core.config import get_settings
 from app.schemas.chat import ChatResponse
 
 
 class ChatService:
-    async def reply(self, message: str) -> ChatResponse:
-        reply = (
-            "I can help plan that trip. Share your dates, budget, and interests "
-            "for a tailored itinerary."
+    def __init__(self) -> None:
+        self.settings = get_settings()
+
+    def _get_llm(self):
+        return ChatGoogleGenerativeAI(
+            model="gemini-2.5-flash",
+            temperature=0.7,
+            google_api_key=self.settings.gemini_api_key,
         )
-        return ChatResponse(reply=reply, created_at=datetime.utcnow())
+
+    async def reply(self, message: str, context: dict[str, Any] | None = None) -> ChatResponse:
+        prompt = PromptTemplate.from_template(
+            "You are a helpful Nepal travel assistant. Answer user questions about travel planning.\n"
+            "User message: {message}\n"
+            "Context: {context}\n"
+            "Provide a helpful, concise response about Nepal travel."
+        )
+
+        llm = self._get_llm()
+        chain = prompt | llm
+
+        context_str = ""
+        if context:
+            context_str = f"Trip details: {context.get('destination', 'N/A')}, "
+            context_str += f"Budget: Rs.{context.get('budget', 'N/A')}, "
+            context_str += f"Dates: {context.get('dates', 'N/A')}"
+
+        try:
+            response = await chain.ainvoke({"message": message, "context": context_str or "No trip context available"})
+            reply_text = response.content if hasattr(response, 'content') else str(response)
+        except ResourceExhausted:
+            reply_text = (
+                "I've reached my daily limit for AI responses. Please try again tomorrow or "
+                "contact us for immediate assistance with your Nepal travel planning. "
+                "You can still browse destinations, hotels, and flights independently."
+            )
+
+        return ChatResponse(reply=reply_text.strip(), created_at=datetime.now(timezone.utc))
