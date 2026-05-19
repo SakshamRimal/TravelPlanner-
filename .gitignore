@@ -7,6 +7,12 @@
 .env.development
 myenv
 
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.turbo/
+
 # C extensions
 *.so
 

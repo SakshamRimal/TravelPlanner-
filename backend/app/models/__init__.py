@@ -1,10 +1,11 @@
-from app.models.base import BaseModel
-from app.models.user import User
-from app.models.trip import Trip
-from app.models.itinerary import Itinerary
-from app.models.chat import ChatHistory
-from app.models.budget import Budget
-from app.models.destination import SavedDestination
+from app.models.base_model import BaseModel
+from app.models.user_model import User
+from app.models.trip_model import Trip
+from app.models.itinerary_model import Itinerary
+from app.models.chat_model import ChatHistory
+from app.models.budget_model import Budget
+from app.models.destination_model import SavedDestination
+from app.models.refreshtoken_model import RefreshToken
 
 __all__ = [
     "BaseModel",
@@ -14,4 +15,5 @@ __all__ = [
     "ChatHistory",
     "Budget",
     "SavedDestination",
+    "RefreshToken",
 ]

@@ -18,10 +18,10 @@ os.environ.setdefault("OPEN_METEO_BASE_URL", "https://api.open-meteo.com/v1/fore
 os.environ.setdefault("OPEN_METEO_GEO_BASE_URL", "https://geocoding-api.open-meteo.com/v1/search")
 
 from app.core.config import get_settings
-from app.services.recommendations import RecommendationService
-from app.services.destination import DestinationService
-from app.services.budget import BudgetService
-from app.services.weather import WeatherService
+from backend.app.services.recommendations_service import RecommendationService
+from backend.app.services.destination_service_service import DestinationService
+from backend.app.services.budget_service import BudgetService
+from backend.app.services.weather_service import WeatherService
 
 
 class DummyResp:
