@@ -1,7 +1,6 @@
-import { useState } from 'react';
-import { api, getAuthHeaders } from '../lib/api';
-import { useAuth } from '../context/AuthContext';
-import { showToast } from '../components/Toast';
+import { useEffect, useState } from "react";
+import { api, getAuthHeaders } from "../lib/api";
+import { showToast } from "../components/Toast";
 import {
   IconCloud,
   IconDroplet,
@@ -13,14 +12,14 @@ import {
   IconSnowflake,
   IconStorm,
   IconInfoCircle,
-} from '@tabler/icons-react';
+} from "@tabler/icons-react";
 
-const QUICK_DESTINATIONS = ['Kathmandu', 'Pokhara', 'Chitwan'];
+const QUICK_DESTINATIONS = ["Kathmandu", "Pokhara", "Chitwan"];
 
 const ICON_MAP = {
   clear: IconSun,
   sunny: IconSun,
-  'partly cloudy': IconCloud,
+  "partly cloudy": IconCloud,
   cloudy: IconCloud,
   overcast: IconCloud,
   rain: IconCloudRain,
@@ -32,7 +31,7 @@ const ICON_MAP = {
 };
 
 function getWeatherIcon(condition) {
-  const key = (condition || '').toLowerCase();
+  const key = (condition || "").toLowerCase();
   for (const [k, Icon] of Object.entries(ICON_MAP)) {
     if (key.includes(k)) return Icon;
   }
@@ -40,38 +39,56 @@ function getWeatherIcon(condition) {
 }
 
 function getWeatherColor(icon) {
-  if (icon === IconSun) return '#F59E0B';
-  if (icon === IconCloudRain) return '#3B82F6';
-  if (icon === IconSnowflake) return '#93C5FD';
-  if (icon === IconStorm) return '#6B7280';
-  return '#9CA3AF';
+  if (icon === IconSun) return "#F59E0B";
+  if (icon === IconCloudRain) return "#3B82F6";
+  if (icon === IconSnowflake) return "#93C5FD";
+  if (icon === IconStorm) return "#6B7280";
+  return "#9CA3AF";
 }
 
 function formatDay(dateStr) {
   const d = new Date(dateStr);
-  return d.toLocaleDateString('en-US', { weekday: 'short' });
+  return d.toLocaleDateString("en-US", { weekday: "short" });
 }
 
 function WeatherSkeleton() {
   return (
     <div className="weather-results">
       <div className="weather-main-skeleton">
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div>
-            <div className="skeleton" style={{ height: 28, width: 160, marginBottom: 8 }} />
-            <div className="skeleton" style={{ height: 14, width: 100, marginBottom: 16 }} />
+            <div
+              className="skeleton"
+              style={{ height: 28, width: 160, marginBottom: 8 }}
+            />
+            <div
+              className="skeleton"
+              style={{ height: 14, width: 100, marginBottom: 16 }}
+            />
             <div className="skeleton" style={{ height: 64, width: 100 }} />
           </div>
           <div className="skeleton" style={{ width: 64, height: 64 }} />
         </div>
-        <div className="skeleton" style={{ height: 40, width: '100%', marginTop: 20 }} />
+        <div
+          className="skeleton"
+          style={{ height: 40, width: "100%", marginTop: 20 }}
+        />
       </div>
       <div className="forecast-row">
         {[1, 2, 3, 4, 5].map((i) => (
           <div key={i} className="forecast-card">
-            <div className="skeleton" style={{ height: 14, width: 32, marginBottom: 8 }} />
-            <div className="skeleton" style={{ width: 28, height: 28, marginBottom: 8 }} />
-            <div className="skeleton" style={{ height: 16, width: 28, marginBottom: 4 }} />
+            <div
+              className="skeleton"
+              style={{ height: 14, width: 32, marginBottom: 8 }}
+            />
+            <div
+              className="skeleton"
+              style={{ width: 28, height: 28, marginBottom: 8 }}
+            />
+            <div
+              className="skeleton"
+              style={{ height: 16, width: 28, marginBottom: 4 }}
+            />
             <div className="skeleton" style={{ height: 12, width: 24 }} />
           </div>
         ))}
@@ -81,30 +98,35 @@ function WeatherSkeleton() {
 }
 
 export default function Weather() {
-  const { isAuthenticated } = useAuth();
-  const [destination, setDestination] = useState('Kathmandu');
+  const [destination, setDestination] = useState("Kathmandu");
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!isAuthenticated) {
-      showToast('Please sign in first', 'error');
-      return;
-    }
+  const fetchWeather = async (nextDestination) => {
     setLoading(true);
     try {
-      const response = await api.get('/api/v1/weather', {
+      const response = await api.get("/api/v1/weather", {
         headers: getAuthHeaders(),
-        params: { destination },
+        params: { destination: nextDestination },
       });
       setReport(response.data);
     } catch {
-      showToast('Failed to fetch weather', 'error');
+      setReport(null);
+      showToast("Failed to fetch weather", "error");
     } finally {
       setLoading(false);
     }
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await fetchWeather(destination);
+  };
+
+  useEffect(() => {
+    fetchWeather(destination);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const WeatherIcon = report ? getWeatherIcon(report.condition) : IconCloud;
   const iconColor = getWeatherColor(WeatherIcon);
@@ -130,7 +152,7 @@ export default function Weather() {
           />
           <button type="submit" disabled={loading} className="btn btn-primary">
             <IconCloud size={18} />
-            {loading ? 'Loading...' : 'Get Weather'}
+            {loading ? "Loading..." : "Get Weather"}
           </button>
         </div>
       </form>
@@ -147,20 +169,20 @@ export default function Weather() {
                   <div className="weather-country">{report.country}</div>
                 )}
                 <div className="weather-date">
-                  {new Date().toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    month: 'long',
-                    day: 'numeric',
+                  {new Date().toLocaleDateString("en-US", {
+                    weekday: "long",
+                    month: "long",
+                    day: "numeric",
                   })}
                 </div>
                 <div className="weather-temp">
-                  {report.temperature ?? '--'}°C
+                  {report.temperature ?? "--"}°C
                 </div>
                 <div className="weather-feels">
-                  Feels like {report.feels_like ?? '--'}°C
+                  Feels like {report.feels_like ?? "--"}°C
                 </div>
                 <div className="weather-condition">
-                  {report.condition || 'Unknown'}
+                  {report.condition || "Unknown"}
                 </div>
               </div>
               <div className="weather-icon-wrap">
@@ -171,22 +193,22 @@ export default function Weather() {
               <div className="weather-stat">
                 <IconDroplet size={16} />
                 <span>Humidity:</span>
-                <strong>{report.humidity ?? '--'}%</strong>
+                <strong>{report.humidity ?? "--"}%</strong>
               </div>
               <div className="weather-stat">
                 <IconWind size={16} />
                 <span>Wind:</span>
-                <strong>{report.wind_speed ?? '--'} km/h</strong>
+                <strong>{report.wind_speed ?? "--"} km/h</strong>
               </div>
               <div className="weather-stat">
                 <IconEye size={16} />
                 <span>Visibility:</span>
-                <strong>{report.visibility ?? '--'} km</strong>
+                <strong>{report.visibility ?? "--"} km</strong>
               </div>
               <div className="weather-stat">
                 <IconGauge size={16} />
                 <span>Pressure:</span>
-                <strong>{report.pressure ?? '--'} hPa</strong>
+                <strong>{report.pressure ?? "--"} hPa</strong>
               </div>
             </div>
           </div>
@@ -201,8 +223,8 @@ export default function Weather() {
                     <div key={i} className="forecast-card">
                       <div className="forecast-day">{formatDay(day.date)}</div>
                       <DayIcon size={24} color={iconColor} />
-                      <div className="forecast-high">{day.high ?? '--'}°</div>
-                      <div className="forecast-low">{day.low ?? '--'}°</div>
+                      <div className="forecast-high">{day.high ?? "--"}°</div>
+                      <div className="forecast-low">{day.low ?? "--"}°</div>
                     </div>
                   );
                 })}
@@ -214,7 +236,8 @@ export default function Weather() {
             <div className="weather-tip">
               <IconInfoCircle size={18} color="var(--color-primary)" />
               <span>
-                Pack light layers — temperatures vary between {report.low}°C and {report.high}°C this week.
+                Pack light layers — temperatures vary between {report.low}°C and{" "}
+                {report.high}°C this week.
               </span>
             </div>
           )}

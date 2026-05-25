@@ -31,11 +31,12 @@ class RefreshTokenRepository:
                 RefreshToken.user_id == user_id,
                 RefreshToken.revoked == False,
                 RefreshToken.expires_at > datetime.utcnow(),
-            )
+            ).order_by(RefreshToken.created_at.desc())
         )
-        token_record = result.scalar_one_or_none()
-        if token_record and pwd_context.verify(token, token_record.token_hash):
-            return token_record
+        token_records = result.scalars().all()
+        for token_record in token_records:
+            if pwd_context.verify(token, token_record.token_hash):
+                return token_record
         return None
 
     async def revoke(self, token_record: RefreshToken) -> None:

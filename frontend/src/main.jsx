@@ -1,16 +1,19 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import 'leaflet/dist/leaflet.css';
-import './styles/tokens.css';
-import App from './App.jsx';
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import { AppStateProvider } from "./context/AppStateContext";
+import "leaflet/dist/leaflet.css";
+import "./styles/tokens.css";
+import App from "./App.jsx";
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <App />
+        <AppStateProvider>
+          <App />
+        </AppStateProvider>
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>,

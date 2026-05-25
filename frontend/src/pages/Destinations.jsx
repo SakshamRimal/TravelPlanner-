@@ -1,20 +1,25 @@
-import { useState } from 'react';
-import { api, getAuthHeaders } from '../lib/api';
-import { useAuth } from '../context/AuthContext';
-import { showToast } from '../components/Toast';
-import { IconSearch, IconMap2, IconHeart } from '@tabler/icons-react';
+import { useState } from "react";
+import { api, getAuthHeaders } from "../lib/api";
+import { useAuth } from "../context/AuthContext";
+import { showToast } from "../components/Toast";
+import { IconSearch, IconMap2, IconHeart } from "@tabler/icons-react";
 
 const POPULAR_DESTINATIONS = [
-  { name: 'Kathmandu', country: 'Nepal', emoji: '🏔️' },
-  { name: 'Pokhara', country: 'Nepal', emoji: '🏞️' },
-  { name: 'Chitwan', country: 'Nepal', emoji: '🦏' },
-  { name: 'Lukla', country: 'Nepal', emoji: '✈️' },
-  { name: 'Nagarkot', country: 'Nepal', emoji: '🌅' },
-  { name: 'Bhaktapur', country: 'Nepal', emoji: '🛕' },
+  { name: "Kathmandu", country: "Nepal", emoji: "🏔️" },
+  { name: "Pokhara", country: "Nepal", emoji: "🏞️" },
+  { name: "Chitwan", country: "Nepal", emoji: "🦏" },
+  { name: "Lukla", country: "Nepal", emoji: "✈️" },
+  { name: "Nagarkot", country: "Nepal", emoji: "🌅" },
+  { name: "Bhaktapur", country: "Nepal", emoji: "🛕" },
 ];
 
 const COLORS = [
-  '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899',
+  "#3B82F6",
+  "#10B981",
+  "#F59E0B",
+  "#EF4444",
+  "#8B5CF6",
+  "#EC4899",
 ];
 
 function DestinationSkeleton() {
@@ -24,9 +29,15 @@ function DestinationSkeleton() {
         <div key={i} className="destination-card destination-card-skeleton">
           <div className="destination-band skeleton" />
           <div style={{ padding: 14 }}>
-            <div className="skeleton" style={{ height: 14, width: '70%', marginBottom: 8 }} />
-            <div className="skeleton" style={{ height: 12, width: '90%', marginBottom: 8 }} />
-            <div className="skeleton" style={{ height: 12, width: '50%' }} />
+            <div
+              className="skeleton"
+              style={{ height: 14, width: "70%", marginBottom: 8 }}
+            />
+            <div
+              className="skeleton"
+              style={{ height: 12, width: "90%", marginBottom: 8 }}
+            />
+            <div className="skeleton" style={{ height: 12, width: "50%" }} />
           </div>
         </div>
       ))}
@@ -36,25 +47,25 @@ function DestinationSkeleton() {
 
 export default function Destinations() {
   const { isAuthenticated } = useAuth();
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleSearch = async (searchQuery) => {
     if (!searchQuery) return;
     if (!isAuthenticated) {
-      showToast('Please sign in first', 'error');
+      showToast("Please sign in first", "error");
       return;
     }
     setLoading(true);
     try {
-      const response = await api.get('/api/v1/destinations/search', {
+      const response = await api.get("/api/v1/destinations/search", {
         headers: getAuthHeaders(),
         params: { query: searchQuery },
       });
       setResults(response.data);
     } catch {
-      showToast('Search failed. Please try again.', 'error');
+      showToast("Search failed. Please try again.", "error");
     } finally {
       setLoading(false);
     }
@@ -82,7 +93,7 @@ export default function Destinations() {
         />
         <button type="submit" disabled={loading} className="btn btn-primary">
           <IconSearch size={18} />
-          {loading ? 'Searching...' : 'Search'}
+          {loading ? "Searching..." : "Search"}
         </button>
       </form>
 
@@ -101,12 +112,15 @@ export default function Destinations() {
                 </div>
                 <div className="destination-body">
                   <p className="destination-desc">
-                    {dest.description || `Discover ${dest.name}, a beautiful destination.`}
+                    {dest.description ||
+                      `Discover ${dest.name}, a beautiful destination.`}
                   </p>
                   {dest.tags && dest.tags.length > 0 && (
                     <div className="destination-tags">
                       {dest.tags.slice(0, 3).map((tag, i) => (
-                        <span key={i} className="tag-pill">{tag}</span>
+                        <span key={i} className="tag-pill">
+                          {tag}
+                        </span>
                       ))}
                     </div>
                   )}
@@ -114,7 +128,12 @@ export default function Destinations() {
                     <button className="btn-favorite">
                       <IconHeart size={16} />
                     </button>
-                    <a href={dest.url || '#'} className="explore-link">
+                    <a
+                      href={dest.url || "#"}
+                      className="explore-link"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       Explore →
                     </a>
                   </div>

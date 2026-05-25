@@ -1,30 +1,50 @@
-import { useState } from 'react';
-import { api, getAuthHeaders } from '../lib/api';
-import { useAuth } from '../context/AuthContext';
-import { showToast } from '../components/Toast';
-import { IconSparkles, IconMapPin, IconCalendar, IconCoin, IconClock, IconStar } from '@tabler/icons-react';
+import { useState, useEffect } from "react";
+import { useAppState } from "../context/AppStateContext";
+import { api, getAuthHeaders } from "../lib/api";
+import { useAuth } from "../context/AuthContext";
+import { showToast } from "../components/Toast";
+import {
+  IconSparkles,
+  IconMapPin,
+  IconCalendar,
+  IconCoin,
+  IconClock,
+  IconStar,
+} from "@tabler/icons-react";
 
 export default function AI() {
   const { isAuthenticated } = useAuth();
-  const [form, setForm] = useState({
-    origin: 'KTM',
-    destination: '',
-    budget: '',
-    travelers: 1,
-    start_date: '',
-    end_date: '',
-    interests: '',
-    transport: '',
-    accommodation: '',
-    additional_notes: '',
-  });
-  const [result, setResult] = useState(null);
+  const { state, setState } = useAppState();
+  const [form, setForm] = useState(
+    () =>
+      state.aiForm || {
+        origin: "KTM",
+        destination: "",
+        budget: "",
+        travelers: 1,
+        start_date: "",
+        end_date: "",
+        interests: "",
+        transport: "",
+        accommodation: "",
+        additional_notes: "",
+      },
+  );
   const [loading, setLoading] = useState(false);
+
+  // Use itinerary result from global state
+  const result = state.aiResult || null;
+
+  // Save form to global state on change
+  useEffect(() => {
+    setState((prev) => ({ ...prev, aiForm: form }));
+    // eslint-disable-next-line
+  }, [form]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isAuthenticated) {
-      showToast('Please sign in first', 'error');
+      showToast("Please sign in first", "error");
       return;
     }
     setLoading(true);
@@ -33,20 +53,27 @@ export default function AI() {
         ...form,
         budget: form.budget ? Number(form.budget) : null,
         travelers: Number(form.travelers),
-        interests: form.interests ? form.interests.split(',').map((i) => i.trim()) : [],
+        interests: form.interests
+          ? form.interests.split(",").map((i) => i.trim())
+          : [],
       };
-      const response = await api.post('/api/v1/ai/itinerary', payload, { headers: getAuthHeaders() });
-      setResult(response.data);
-      showToast('Itinerary generated!', 'success');
+      const response = await api.post("/api/v1/ai/itinerary", payload, {
+        headers: getAuthHeaders(),
+      });
+      setState((prev) => ({ ...prev, aiResult: response.data, aiForm: form }));
+      showToast("Itinerary generated!", "success");
     } catch (error) {
-      showToast(error.response?.data?.detail || 'Failed to generate itinerary', 'error');
+      showToast(
+        error.response?.data?.detail || "Failed to generate itinerary",
+        "error",
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const formatCurrency = (amount) => {
-    if (!amount) return 'NPR 0';
+    if (!amount) return "NPR 0";
     return `NPR ${Math.round(amount).toLocaleString()}`;
   };
 
@@ -60,54 +87,115 @@ export default function AI() {
         <div className="form-grid">
           <div className="form-group">
             <label className="form-label">Origin</label>
-            <input type="text" value={form.origin} onChange={(e) => setForm({ ...form, origin: e.target.value })} className="input" placeholder="KTM" />
+            <input
+              type="text"
+              value={form.origin}
+              onChange={(e) => setForm({ ...form, origin: e.target.value })}
+              className="input"
+              placeholder="KTM"
+            />
           </div>
           <div className="form-group">
             <label className="form-label">Destination</label>
-            <input type="text" value={form.destination} onChange={(e) => setForm({ ...form, destination: e.target.value })} className="input" placeholder="Where to?" required />
+            <input
+              type="text"
+              value={form.destination}
+              onChange={(e) =>
+                setForm({ ...form, destination: e.target.value })
+              }
+              className="input"
+              placeholder="Where to?"
+              required
+            />
           </div>
           <div className="form-group">
             <label className="form-label">Budget (NPR)</label>
-            <input type="number" value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} className="input" placeholder="0" />
+            <input
+              type="number"
+              value={form.budget}
+              onChange={(e) => setForm({ ...form, budget: e.target.value })}
+              className="input"
+              placeholder="0"
+            />
           </div>
           <div className="form-group">
             <label className="form-label">Travelers</label>
-            <input type="number" min="1" value={form.travelers} onChange={(e) => setForm({ ...form, travelers: e.target.value })} className="input" />
+            <input
+              type="number"
+              min="1"
+              value={form.travelers}
+              onChange={(e) => setForm({ ...form, travelers: e.target.value })}
+              className="input"
+            />
           </div>
           <div className="form-group">
             <label className="form-label">Start Date</label>
-            <input type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} className="input" required />
+            <input
+              type="date"
+              value={form.start_date}
+              onChange={(e) => setForm({ ...form, start_date: e.target.value })}
+              className="input"
+              required
+            />
           </div>
           <div className="form-group">
             <label className="form-label">End Date</label>
-            <input type="date" value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} className="input" required />
+            <input
+              type="date"
+              value={form.end_date}
+              onChange={(e) => setForm({ ...form, end_date: e.target.value })}
+              className="input"
+              required
+            />
           </div>
           <div className="form-group full-width">
             <label className="form-label">Interests (comma-separated)</label>
-            <input type="text" value={form.interests} onChange={(e) => setForm({ ...form, interests: e.target.value })} className="input" placeholder="Adventure, Culture, Food..." />
+            <input
+              type="text"
+              value={form.interests}
+              onChange={(e) => setForm({ ...form, interests: e.target.value })}
+              className="input"
+              placeholder="Adventure, Culture, Food..."
+            />
           </div>
           <div className="form-group">
             <label className="form-label">Transport</label>
-            <input type="text" value={form.transport} onChange={(e) => setForm({ ...form, transport: e.target.value })} className="input" placeholder="Flight, Bus..." />
+            <input
+              type="text"
+              value={form.transport}
+              onChange={(e) => setForm({ ...form, transport: e.target.value })}
+              className="input"
+              placeholder="Flight, Bus..."
+            />
           </div>
           <div className="form-group">
             <label className="form-label">Accommodation</label>
-            <input type="text" value={form.accommodation} onChange={(e) => setForm({ ...form, accommodation: e.target.value })} className="input" placeholder="Hotel, Guesthouse..." />
+            <input
+              type="text"
+              value={form.accommodation}
+              onChange={(e) =>
+                setForm({ ...form, accommodation: e.target.value })
+              }
+              className="input"
+              placeholder="Hotel, Guesthouse..."
+            />
           </div>
           <div className="form-group full-width">
             <label className="form-label">Additional Notes</label>
             <textarea
               value={form.additional_notes}
-              onChange={(e) => setForm({ ...form, additional_notes: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, additional_notes: e.target.value })
+              }
               className="input"
               placeholder="Any specific requirements or preferences..."
-              style={{ height: 'auto', minHeight: '80px', padding: '12px' }}
+              style={{ height: "auto", minHeight: "80px", padding: "12px" }}
             />
           </div>
         </div>
         <button type="submit" disabled={loading} className="btn btn-primary">
           <IconSparkles size={18} />
-          {loading ? 'Generating...' : 'Generate Itinerary'}
+          {loading ? "Generating..." : "Generate Itinerary"}
         </button>
       </form>
 
@@ -135,35 +223,56 @@ export default function AI() {
                     <span className="day-number">Day {idx + 1}</span>
                     {day.date && <span className="day-date">{day.date}</span>}
                   </div>
-                  <div className="day-title">{day.title || 'Daily Schedule'}</div>
+                  <div className="day-title">
+                    {day.title || "Daily Schedule"}
+                  </div>
                   <div className="activities-list">
                     {day.morning && (
                       <div className="activity-item">
-                        <span className="activity-time"><IconClock size={14} />Morning</span>
+                        <span className="activity-time">
+                          <IconClock size={14} />
+                          Morning
+                        </span>
                         <span className="activity-name">{day.morning}</span>
                       </div>
                     )}
                     {day.late_morning && (
                       <div className="activity-item">
-                        <span className="activity-time"><IconClock size={14} />Late Morning</span>
-                        <span className="activity-name">{day.late_morning}</span>
+                        <span className="activity-time">
+                          <IconClock size={14} />
+                          Late Morning
+                        </span>
+                        <span className="activity-name">
+                          {day.late_morning}
+                        </span>
                       </div>
                     )}
                     {day.afternoon && (
                       <div className="activity-item">
-                        <span className="activity-time"><IconClock size={14} />Afternoon</span>
+                        <span className="activity-time">
+                          <IconClock size={14} />
+                          Afternoon
+                        </span>
                         <span className="activity-name">{day.afternoon}</span>
                       </div>
                     )}
                     {day.late_afternoon && (
                       <div className="activity-item">
-                        <span className="activity-time"><IconClock size={14} />Late Afternoon</span>
-                        <span className="activity-name">{day.late_afternoon}</span>
+                        <span className="activity-time">
+                          <IconClock size={14} />
+                          Late Afternoon
+                        </span>
+                        <span className="activity-name">
+                          {day.late_afternoon}
+                        </span>
                       </div>
                     )}
                     {day.evening && (
                       <div className="activity-item">
-                        <span className="activity-time"><IconClock size={14} />Evening</span>
+                        <span className="activity-time">
+                          <IconClock size={14} />
+                          Evening
+                        </span>
                         <span className="activity-name">{day.evening}</span>
                       </div>
                     )}
