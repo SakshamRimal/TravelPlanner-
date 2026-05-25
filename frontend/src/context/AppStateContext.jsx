@@ -3,10 +3,15 @@ import { createContext, useContext, useState, useEffect } from "react";
 const STORAGE_KEY = "tp_app_state";
 
 const defaultState = {
-  // Add your global state fields here
   selectedTrip: null,
   preferences: {},
-  // ...add more as needed
+  // Budget persistence
+  budgetForm: { destination: "Pokhara", days: 3, travelers: 1 },
+  budgetResult: null,
+  budgetCurrency: "NPR",
+  // Chat persistence
+  chatMessages: [],
+  chatSelectedTrip: null,
 };
 
 const AppStateContext = createContext();
@@ -15,7 +20,9 @@ export function AppStateProvider({ children }) {
   const [state, setState] = useState(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : defaultState;
+      if (!stored) return defaultState;
+      // Merge so new keys are always present even after schema changes
+      return { ...defaultState, ...JSON.parse(stored) };
     } catch {
       return defaultState;
     }
@@ -25,8 +32,12 @@ export function AppStateProvider({ children }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }, [state]);
 
+  // Partial-merge updater — works like setState in class components
+  const updateState = (partial) =>
+    setState((prev) => ({ ...prev, ...partial }));
+
   return (
-    <AppStateContext.Provider value={{ state, setState }}>
+    <AppStateContext.Provider value={{ state, setState, updateState }}>
       {children}
     </AppStateContext.Provider>
   );
